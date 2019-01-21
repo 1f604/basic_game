@@ -185,6 +185,7 @@ function create ()
                         objmap[id].x = xpos;
                         objmap[id].y = ypos;
                     }
+                    break;
                 case 5: //server full
                     console.log("Error: server full. Try again later.")
             }
