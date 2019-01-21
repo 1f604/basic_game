@@ -1,3 +1,4 @@
+
 // front end code is based off this Phaser example here: https://labs.phaser.io/view.html?src=src\games\topdownShooter\topdown_playerFocus.js
 
 var config = {
@@ -46,19 +47,6 @@ function preload ()
     this.load.image('background', 'assets/underwater1.png');
 }
 
-/**
- * Returns a random integer between min (inclusive) and max (inclusive).
- * The value is no lower than min (or the next integer greater than min
- * if min isn't an integer) and no greater than max (or the next integer
- * lower than max if max isn't an integer).
- * Using Math.round() will give you a non-uniform distribution!
- */
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 function isWebGLSupported()
 {
     const contextOptions = { stencil: true, failIfMajorPerformanceCaveat: true };
@@ -95,20 +83,43 @@ function isWebGLSupported()
     }
 }
 
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive).
+ * The value is no lower than min (or the next integer greater than min
+ * if min isn't an integer) and no greater than max (or the next integer
+ * lower than max if max isn't an integer).
+ * Using Math.round() will give you a non-uniform distribution!
+ */
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function countPercentile(arr, target, diff){
+    count = 0;
+    for (var i =0; i < arr.length; i++){
+        //console.log(Math.abs(arr[i] - target))
+        if (Math.abs(arr[i] - target) < diff){
+            count++;
+        }
+    }
+    return count / arr.length;
+}
 
 function create ()
 {
     function sendKeyPress (keypress)
-    { 
+    {
         const ints = new Int8Array(new ArrayBuffer(1));
         ints[0] = keypress;
-    
+
         // TODO: we can probably handle this a bit better
         if (ws.readyState === WebSocket.OPEN) {
         ws.send(ints.buffer);
         }
     }
-    
+
     // Set world bounds
     this.physics.world.setBounds(0, 0, 1600, 1200);
     console.log(this.sys.game.device.features);
@@ -119,7 +130,7 @@ function create ()
     // Add background player, enemy, reticle, healthpoint sprites
     var background = this.add.image(800, 600, 'background');
     reticle = this.add.sprite(800, 700, 'target');
-    reticle.setScrollFactor(0); // lock reticle to camera
+    reticle.setScrollFactor(0);
 
     // create websocket connection
     host = window.location.hostname;
@@ -127,7 +138,7 @@ function create ()
     port = location.port;
     path = "/ws";
     ws = new WebSocket(protocol + host + ':' + port + path);
-    ws.binaryType = "arraybuffer"; // needed for performance, very important. 
+    ws.binaryType = "arraybuffer"; // needed for performance, very important.
     flag = true;
     playerid = 0;
 
@@ -183,11 +194,14 @@ function create ()
             if (times.length === 100){
                 sum = 0;
                 for( var i = 0; i < times.length; i++ ){
-                    sum += times[i]; 
+                    sum += times[i];
                 }
                 console.log("elapsed:",times);
                 console.log("average:",sum/times.length);
                 console.log("maximum:",Math.max(...times));
+                console.log("% within 0.5ms of target: ", countPercentile(times, 16, 0.5))
+                console.log("% within 1ms of target: ", countPercentile(times, 16, 1))
+                console.log("% within 2ms of target: ", countPercentile(times, 16, 2))
                 times = []
             }
             var view = new DataView(event.data);
@@ -232,12 +246,12 @@ function create ()
     background.setOrigin(0.5, 0.5).setDisplaySize(1600, 1200);
     reticle.setOrigin(0.5, 0.5).setDisplaySize(36, 36);
 
-    /* handle keyboard input */
+    // Creates object for input with WASD kets
     isKeyDown = {"w":false, "a":false, "s":false, "d":false}
 
-    moveKeyEvents = ['keydown_W', 'keydown_S', 'keydown_A', 'keydown_D', 
+    moveKeyEvents = ['keydown_W', 'keydown_S', 'keydown_A', 'keydown_D',
     'keyup_W', 'keyup_A', 'keyup_S', 'keyup_D']
-    
+
     function sendKeyEvent() {
         var dx = 0, dy = 0;
         if (isKeyDown['a']){
@@ -252,6 +266,7 @@ function create ()
         if (isKeyDown['s']){
             dy++;
         }
+        //console.log(1+(dx+1)+(dy+1)*3)
         sendKeyPress(1+(dx+1)+(dy+1)*3)
     }
 
@@ -324,6 +339,7 @@ function create ()
             reticle.y += pointer.movementY;
         }
     }, this);
+
 }
 
 // Ensures reticle does not move offscreen
@@ -338,7 +354,7 @@ function constrainReticle(reticle)
     if (reticle.y < limits.top)
         reticle.y = limits.top;
     else if (reticle.y > limits.bottom)
-        reticle.y = limits.bottom; 
+        reticle.y = limits.bottom;
 }
 
 function update (time, delta)
