@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "+WvAFQYdExJNUjKDAtuSs8O7ELg=",
+			"path": "github.com/gorilla/websocket",
+			"revision": "76e4896901ef89d253d69b528d3701dd146fe2ae",
+			"revisionTime": "2018-10-12T02:01:31Z"
+		}
+	],
+	"rootPath": "github.com/1f604/basic_game"
+}
