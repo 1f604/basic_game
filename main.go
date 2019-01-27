@@ -467,10 +467,10 @@ func advancegametick() {
 
 	dur := time.Since(lastTick)
 	fmt.Println("time elapsed since last tick: ", dur)
-	if dur > tickLimit {
+	/*if dur > tickLimit {
 		fmt.Println("time elapsed since last tick: ", dur)
 		panic("ticker took too long")
-	}
+	}*/
 	lastTick = time.Now()
 	//t0 := time.Now()
 	clients.lock.Lock()
